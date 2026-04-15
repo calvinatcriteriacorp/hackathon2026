@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On Demand Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .timer {
+            font-size: 42px;
+            font-weight: 700;
+            color: #333;
+            text-align: right;
+            margin-bottom: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="timer" id="timer">14:42</div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 18%;"></div>
+            </div>
+            <div class="progress-text">Question 9 / 50</div>
+        </div>
+
+        <div class="question">
+            PAPER is to THIN as...
+        </div>
+
+        <form class="options">
+
+            <div class="option">
+                <input type="radio" name="answer" id="optionB" value="B">
+                <label for="optionB">BINDER is to ORGANIZE</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionC" value="C">
+                <label for="optionC">PRINTER is to COPY</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionD" value="D">
+                <label for="optionD">RABBIT is to WISHFUL</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionE" value="E">
+                <label for="optionE">SPOON is to SULKY</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionA" value="A">
+                <label for="optionA">None of the above</label>
+            </div>
+        </form>
+
+        <button type="submit" class="submit-btn" onclick="finishAssessment(event)">Submit Assessment</button>
+    </div>
+
+    <script>
+        // Countdown timer starting at 14:42
+        let totalSeconds = 14 * 60 + 42;
+        const timerEl = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(interval);
+                return;
+            }
+            totalSeconds--;
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+        }, 1000);
+
+        function finishAssessment(e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            try { if (typeof CursorTracker !== 'undefined') CursorTracker.saveResults(); } catch(err) { console.warn(err); }
+            try { if (typeof EyeTracker !== 'undefined' && EyeTracker.isActive()) EyeTracker.saveResults(); } catch(err) { console.warn(err); }
+            try { if (typeof webgazer !== 'undefined') webgazer.end(); } catch(err) { console.warn(err); }
+            window.location.href = 'summary.html';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.min.js"></script>
+    <script src="eye-tracker.js"></script>
+    <script src="cursor-tracker.js"></script>
+</body>
+</html>

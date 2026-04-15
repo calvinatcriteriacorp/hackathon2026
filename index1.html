@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On Demand Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">Question 4 / 60</div>
+        </div>
+
+        <!-- <div class="question-blue">
+            Which box the is the last option? 
+        </div> -->
+        <div class="question">
+            Which of the following boxes should replace the question mark (?) to complete the pattern?
+        </div>
+        <!-- <div class="question-green">
+            Which box is the first option?
+        </div> -->
+
+        <div class="pattern-box">
+            <img src="img/q4.png" alt="Pattern to identify" class="pattern-image">
+            <!-- <div class="hover-half hover-top">
+                <span class="hover-hint">Hover to reveal</span>
+            </div>
+            <div class="hover-half hover-bottom">
+                <span class="hover-hint">Hover to reveal</span>
+            </div> -->
+        </div>
+
+        <form class="options">
+            <div class="option">
+                <input type="radio" name="answer" id="optionA" value="A">
+                <label for="optionA">A</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionB" value="B">
+                <label for="optionB">B</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionC" value="C">
+                <label for="optionC">C</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionD" value="D">
+                <label for="optionD">D</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionE" value="E">
+                <label for="optionE">E</label>
+            </div>
+            <div class="option">
+                <input type="radio" name="answer" id="optionF" value="F">
+                <label for="optionF">None of the above</label>
+            </div>
+        </form>
+
+        <button type="submit" class="submit-btn">Submit Answer</button>
+        <a href="index2.html" class="next-btn">Next →</a>
+    </div>
+
+    <!-- <script src="script.js"></script> -->
+    <!-- <script src="advanced-protection.js"></script> -->
+    <!-- <script src="interactive-challenge.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.min.js"></script>
+    <script src="eye-tracker.js"></script>
+    <script src="cursor-tracker.js"></script>
+</body>
+</html>

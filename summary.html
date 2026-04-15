@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Summary Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            padding: 30px;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .report-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .report-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Overall Rating */
+        .overall-rating {
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .overall-rating.low { background: #e8f5e9; border: 2px solid #4caf50; }
+        .overall-rating.medium { background: #fff3e0; border: 2px solid #ff9800; }
+        .overall-rating.high { background: #ffebee; border: 2px solid #f44336; }
+
+        .overall-score {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .overall-rating.low .overall-score { color: #2e7d32; }
+        .overall-rating.medium .overall-score { color: #e65100; }
+        .overall-rating.high .overall-score { color: #c62828; }
+
+        .overall-label {
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .overall-rating.low .overall-label { color: #388e3c; }
+        .overall-rating.medium .overall-label { color: #ef6c00; }
+        .overall-rating.high .overall-label { color: #d32f2f; }
+
+        .overall-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* Score breakdown bar */
+        .score-breakdown {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .score-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.7);
+        }
+
+        /* Question cards */
+        .question-card {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .question-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .question-card-header:hover {
+            background: #f0f0f0;
+        }
+        .question-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+        .question-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+        .question-badge.low { background: #4caf50; }
+        .question-badge.medium { background: #ff9800; }
+        .question-badge.high { background: #f44336; }
+
+        .question-card-body {
+            display: none;
+            padding: 0 18px 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .question-card.open .question-card-body {
+            display: block;
+        }
+
+        /* Tracker sections inside card */
+        .tracker-section {
+            margin-top: 12px;
+        }
+        .tracker-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 16px;
+            font-size: 12px;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-key { color: #888; }
+        .stat-val { font-weight: 500; color: #333; }
+
+        /* Flag items */
+        .flag-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .flag-item.high { background: #ffebee; border-left: 3px solid #f44336; }
+        .flag-item.medium { background: #fff8e1; border-left: 3px solid #ff9800; }
+        .flag-item.low { background: #f1f8e9; border-left: 3px solid #8bc34a; }
+        .flag-name { font-weight: 600; }
+        .flag-detail { color: #666; font-size: 11px; margin-top: 2px; }
+        .flag-score { font-weight: 600; color: #999; white-space: nowrap; margin-left: 12px; }
+
+        .no-flags {
+            color: #4caf50;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 0;
+        }
+
+        /* Restart */
+        .restart-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .restart-btn:hover { background: #555; }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .no-data h2 { color: #666; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="report-header">
+            <h1>Assessment Integrity Report</h1>
+            <p>AI-assisted behavior detection summary</p>
+        </div>
+        <div id="report-content">
+            <div class="no-data">
+                <h2>No Data Available</h2>
+                <p>Complete the assessment to see your report.</p>
+                <a href="index1.html" class="restart-btn">Start Assessment</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cursorResults = JSON.parse(sessionStorage.getItem('cursorResults') || '{}');
+        const eyeResults = JSON.parse(sessionStorage.getItem('eyeResults') || '{}');
+
+        const pageLabels = {
+            index1: 'Question 1 — Pattern Recognition',
+            index2: 'Question 2 — Answer Ordering',
+            index3: 'Question 3 — Verbal Analogy'
+        };
+
+        const allPages = [...new Set([...Object.keys(cursorResults), ...Object.keys(eyeResults)])];
+        allPages.sort();
+
+        if (allPages.length === 0) {
+            // No data — show default message
+        } else {
+            buildReport();
+        }
+
+        function buildReport() {
+            const container = document.getElementById('report-content');
+
+            // Aggregate scores
+            let totalCursorScore = 0;
+            let totalEyeScore = 0;
+            let totalCursorFlags = 0;
+            let totalEyeFlags = 0;
+
+            allPages.forEach(page => {
+                const cr = cursorResults[page];
+                const er = eyeResults[page];
+                if (cr) {
+                    totalCursorScore += cr.totalScore || 0;
+                    totalCursorFlags += (cr.flags || []).length;
+                }
+                if (er) {
+                    totalEyeScore += er.totalScore || 0;
+                    totalEyeFlags += (er.flags || []).length;
+                }
+            });
+
+            const grandTotal = totalCursorScore + totalEyeScore;
+            const totalFlags = totalCursorFlags + totalEyeFlags;
+            let overallRisk = 'low';
+            if (grandTotal >= 100) overallRisk = 'high';
+            else if (grandTotal >= 50) overallRisk = 'medium';
+
+            const riskDescriptions = {
+                low: 'No significant indicators of AI-assisted behavior detected.',
+                medium: 'Some behavioral patterns suggest possible external assistance.',
+                high: 'Multiple strong indicators of AI-assisted behavior detected.'
+            };
+
+            // Build HTML
+            let html = '';
+
+            // Overall rating
+            html += `
+                <div class="overall-rating ${overallRisk}">
+                    <div class="overall-score">${grandTotal}</div>
+                    <div class="overall-label">${overallRisk} risk</div>
+                    <div class="overall-subtitle">${riskDescriptions[overallRisk]}</div>
+                    <div class="score-breakdown">
+                        <span class="score-chip">🖱 Cursor: ${totalCursorScore} pts (${totalCursorFlags} flags)</span>
+                        <span class="score-chip">👁 Eye: ${totalEyeScore} pts (${totalEyeFlags} flags)</span>
+                        <span class="score-chip">📋 Questions: ${allPages.length}</span>
+                    </div>
+                    <div style="margin-top:14px; font-size:12px; color:#666; display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#4caf50;margin-right:4px;"></span>Low Risk: 0–49 pts</span>
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ff9800;margin-right:4px;"></span>Medium Risk: 50–99 pts</span>
+                        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f44336;margin-right:4px;"></span>High Risk: 100+ pts</span>
+                    </div>
+                </div>
+            `;
+
+            // Per-question cards
+            allPages.forEach((page, i) => {
+                const cr = cursorResults[page];
+                const er = eyeResults[page];
+                const label = pageLabels[page] || `Question ${i + 1}`;
+
+                const pageScore = (cr ? cr.totalScore || 0 : 0) + (er ? er.totalScore || 0 : 0);
+                let pageRisk = 'low';
+                if (pageScore >= 50) pageRisk = 'high';
+                else if (pageScore >= 25) pageRisk = 'medium';
+
+                html += `<div class="question-card" id="card-${page}">`;
+                html += `
+                    <div class="question-card-header" onclick="toggleCard('${page}')">
+                        <span class="question-title">${label}</span>
+                        <span class="question-badge ${pageRisk}">${pageRisk.toUpperCase()} — ${pageScore} pts</span>
+                    </div>
+                    <div class="question-card-body">
+                `;
+
+                // Cursor tracker section
+                if (cr) {
+                    html += `<div class="tracker-section">`;
+                    html += `<div class="tracker-label">🖱 Cursor Tracking (${cr.totalScore || 0} pts)</div>`;
+                    html += `<div class="stats-grid">`;
+                    if (cr.stats) {
+                        Object.entries(cr.stats).forEach(([key, val]) => {
+                            html += `<div class="stat-row"><span class="stat-key">${formatKey(key)}</span><span class="stat-val">${val}</span></div>`;
+                        });
+                    }
+                    html += `</div>`;
+                    html += renderFlags(cr.flags || []);
+                    html += `</div>`;
+                }
+
+                // Eye tracker section
+                if (er) {
+                    html += `<div class="tracker-section">`;
+                    html += `<div class="tracker-label">👁 Eye Tracking (${er.totalScore || 0} pts)</div>`;
+                    html += `<div class="stats-grid">`;
+                    if (er.stats) {
+                        Object.entries(er.stats).forEach(([key, val]) => {
+                            html += `<div class="stat-row"><span class="stat-key">${formatKey(key)}</span><span class="stat-val">${val}</span></div>`;
+                        });
+                    }
+                    html += `</div>`;
+                    html += renderFlags(er.flags || []);
+                    html += `</div>`;
+                }
+
+                if (!cr && !er) {
+                    html += `<div class="no-flags">No tracking data collected for this question.</div>`;
+                }
+
+                html += `</div></div>`;
+            });
+
+            html += `
+                <a href="index.html" class="restart-btn" onclick="sessionStorage.clear()">Restart Assessment</a>
+            `;
+
+            container.innerHTML = html;
+
+            // Auto-open cards that have flags
+            allPages.forEach(page => {
+                const cr = cursorResults[page];
+                const er = eyeResults[page];
+                const hasFlags = (cr && cr.flags && cr.flags.length > 0) || (er && er.flags && er.flags.length > 0);
+                if (hasFlags) {
+                    document.getElementById('card-' + page).classList.add('open');
+                }
+            });
+        }
+
+        function toggleCard(page) {
+            document.getElementById('card-' + page).classList.toggle('open');
+        }
+
+        function renderFlags(flags) {
+            if (flags.length === 0) {
+                return '<div class="no-flags">No suspicious patterns detected.</div>';
+            }
+            let html = '';
+            flags.forEach(f => {
+                html += `
+                    <div class="flag-item ${f.severity}">
+                        <div>
+                            <div class="flag-name">${f.rule}</div>
+                            <div class="flag-detail">${f.detail}</div>
+                        </div>
+                        <div class="flag-score">+${f.score}</div>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        function formatKey(key) {
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+        }
+    </script>
+</body>
+</html>

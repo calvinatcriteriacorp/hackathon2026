@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On Demand Assessment — Setup</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .setup-container {
+            text-align: center;
+            padding: 60px 40px;
+        }
+        .setup-container h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .setup-container p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .setup-status {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .setup-status.loading {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .setup-status.ready {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+        .setup-status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .start-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+        .start-btn:hover { background: #3367d6; }
+        .start-btn.visible { display: block; }
+        .camera-preview {
+            margin: 20px auto;
+            width: 320px;
+            height: 240px;
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            position: relative;
+        }
+        .camera-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .camera-placeholder {
+            color: #666;
+            font-size: 13px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container setup-container">
+        <h1>Assessment Setup</h1>
+        <p>We need to calibrate eye tracking before starting the assessment.</p>
+
+        <div id="status" class="setup-status loading">Initializing camera...</div>
+
+        <div class="camera-preview" id="cameraPreview">
+            <span class="camera-placeholder" id="cameraPlaceholder">Loading camera...</span>
+        </div>
+
+        <div id="calibrationArea"></div>
+
+        <a href="index1.html" class="start-btn" id="startBtn">Start Assessment →</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.min.js"></script>
+    <script>
+        const statusEl = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const cameraPreview = document.getElementById('cameraPreview');
+        const placeholder = document.getElementById('cameraPlaceholder');
+
+        async function setup() {
+            try {
+                // Configure MediaPipe CDN
+                if (webgazer.params) {
+                    webgazer.params.faceMeshConfig = {
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`
+                    };
+                }
+
+                webgazer
+                    .setRegression('ridge')
+                    .saveDataAcrossSessions(true)
+                    .showVideoPreview(false)
+                    .showPredictionPoints(false)
+                    .showFaceFeedbackBox(false);
+
+                await webgazer.begin();
+                webgazer.addMouseEventListeners();
+
+                // Move the webcam feed into our preview box
+                const video = document.getElementById('webgazerVideoFeed');
+                if (video) {
+                    video.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                    cameraPreview.appendChild(video);
+                    placeholder.style.display = 'none';
+                }
+
+                // Hide WebGazer's default container
+                const wgContainer = document.getElementById('webgazerVideoContainer');
+                if (wgContainer) wgContainer.style.display = 'none';
+
+                statusEl.textContent = 'Camera ready — click each dot to calibrate';
+                statusEl.className = 'setup-status ready';
+
+                await new Promise(r => setTimeout(r, 500));
+                await showCalibration();
+
+            } catch (err) {
+                console.warn('Setup error:', err);
+                // Check if video is actually running
+                setTimeout(() => {
+                    const video = document.getElementById('webgazerVideoFeed');
+                    if (video && video.srcObject) {
+                        video.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+                        cameraPreview.appendChild(video);
+                        placeholder.style.display = 'none';
+                        const wgContainer = document.getElementById('webgazerVideoContainer');
+                        if (wgContainer) wgContainer.style.display = 'none';
+
+                        statusEl.textContent = 'Camera ready — click each dot to calibrate';
+                        statusEl.className = 'setup-status ready';
+                        webgazer.addMouseEventListeners();
+                        showCalibration();
+                    } else {
+                        statusEl.textContent = 'Camera access denied — you can still proceed';
+                        statusEl.className = 'setup-status error';
+                        startBtn.classList.add('visible');
+                    }
+                }, 1500);
+            }
+        }
+
+        function showCalibration() {
+            return new Promise((resolve) => {
+                const points = [
+                    { x: 10, y: 10 }, { x: 50, y: 10 }, { x: 90, y: 10 },
+                    { x: 10, y: 50 }, { x: 50, y: 50 }, { x: 90, y: 50 },
+                    { x: 10, y: 90 }, { x: 50, y: 90 }, { x: 90, y: 90 }
+                ];
+
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.85); z-index: 10000;
+                `;
+
+                const instructions = document.createElement('div');
+                instructions.style.cssText = `
+                    color: white; font-size: 18px; font-family: -apple-system, sans-serif;
+                    text-align: center; position: absolute; top: 45%; width: 100%;
+                `;
+                instructions.innerHTML = 'Click each dot while looking at it<br><small style="color:#aaa;">This calibrates eye tracking (9 points)</small>';
+                overlay.appendChild(instructions);
+
+                // Skip button
+                const skipBtn = document.createElement('button');
+                skipBtn.textContent = 'Skip Calibration';
+                skipBtn.style.cssText = `
+                    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+                    padding: 10px 24px; background: transparent; color: #aaa; border: 1px solid #666;
+                    border-radius: 8px; cursor: pointer; font-size: 14px; font-family: -apple-system, sans-serif;
+                    transition: background 0.2s, color 0.2s;
+                `;
+                skipBtn.addEventListener('mouseenter', () => { skipBtn.style.background = '#333'; skipBtn.style.color = '#fff'; });
+                skipBtn.addEventListener('mouseleave', () => { skipBtn.style.background = 'transparent'; skipBtn.style.color = '#aaa'; });
+                skipBtn.addEventListener('click', () => {
+                    overlay.remove();
+                    onCalibrationDone();
+                    resolve();
+                });
+                overlay.appendChild(skipBtn);
+
+                let completedPoints = 0;
+
+                points.forEach((pt) => {
+                    const dot = document.createElement('div');
+                    dot.style.cssText = `
+                        position: absolute;
+                        left: ${pt.x}%;
+                        top: ${pt.y}%;
+                        width: 30px; height: 30px;
+                        background: #4285f4;
+                        border: 3px solid white;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        transform: translate(-50%, -50%);
+                        transition: transform 0.2s, background 0.2s;
+                    `;
+
+                    dot.addEventListener('click', (e) => {
+                        if (typeof webgazer !== 'undefined') {
+                            webgazer.recordScreenPosition(e.clientX, e.clientY, 'click');
+                        }
+                        dot.style.background = '#4caf50';
+                        dot.style.transform = 'translate(-50%, -50%) scale(0.3)';
+                        dot.style.pointerEvents = 'none';
+                        completedPoints++;
+
+                        if (completedPoints === points.length) {
+                            setTimeout(() => {
+                                overlay.remove();
+                                onCalibrationDone();
+                                resolve();
+                            }, 300);
+                        }
+                    });
+
+                    overlay.appendChild(dot);
+                });
+
+                document.body.appendChild(overlay);
+            });
+        }
+
+        function onCalibrationDone() {
+            // Stop webgazer on this page — it will restart on question pages
+            try { webgazer.end(); } catch(e) {}
+
+            statusEl.textContent = 'Calibration complete!';
+            statusEl.className = 'setup-status ready';
+            startBtn.classList.add('visible');
+        }
+
+        setup();
+    </script>
+</body>
+</html>
